@@ -1,0 +1,167 @@
+================================================================================
+                         HP-PULSE SCRAPER
+                    Quick Start Guide (5 Minutes)
+================================================================================
+
+📦 STEP 1: INSTALL DEPENDENCIES
+────────────────────────────────
+
+Open terminal in the hp-pulse-scraper folder and run:
+
+    pip install -r requirements.txt --break-system-packages
+
+This installs: beautifulsoup4, requests, schedule, feedparser, etc.
+
+
+🚀 STEP 2: START THE SCRAPER
+────────────────────────────────
+
+    python scraper.py
+
+What happens:
+✓ Creates hp_pulse.db database
+✓ Initializes compliance checker
+✓ Runs initial scrape (tenders, news, directories)
+✓ Continues running on schedule:
+  - Tenders: every 1 hour
+  - News: every 6 hours  
+  - Directories: every 24 hours
+
+You'll see real-time output showing scraping activity!
+
+
+📊 STEP 3: MONITOR (OPTIONAL)
+────────────────────────────────
+
+Open ANOTHER terminal window and run:
+
+    python monitor.py
+
+Shows:
+✓ Total companies and leads found
+✓ Recent scraping activity
+✓ Success rates
+✓ High-confidence leads
+
+Refresh periodically:
+
+    watch -n 30 python monitor.py
+
+
+💾 STEP 4: QUERY THE DATABASE (OPTIONAL)
+────────────────────────────────────────────
+
+    sqlite3 hp_pulse.db
+
+Try these queries:
+
+    -- View recent leads
+    SELECT * FROM leads ORDER BY scraped_at DESC LIMIT 10;
+
+    -- View all companies
+    SELECT * FROM companies;
+
+    -- Check scrape log
+    SELECT * FROM scrape_log ORDER BY scraped_at DESC;
+
+    -- Exit
+    .quit
+
+
+🛑 STEP 5: STOP THE SCRAPER
+────────────────────────────────
+
+In the terminal running scraper.py:
+
+    Press Ctrl+C
+
+Shows final statistics and exits gracefully.
+
+
+================================================================================
+                           DEMO VIDEO TIPS
+================================================================================
+
+1. START RECORDING
+2. Run: python scraper.py
+3. Show console output (scraping activity)
+4. Open new terminal, run: python monitor.py
+5. Show dashboard with statistics
+6. Open SQLite: sqlite3 hp_pulse.db
+7. Run a query showing recent leads
+8. Ctrl+C to stop scraper
+9. STOP RECORDING
+
+Duration: 2-3 minutes perfect!
+
+
+================================================================================
+                         TROUBLESHOOTING
+================================================================================
+
+❌ "ModuleNotFoundError"
+→ Run: pip install -r requirements.txt --break-system-packages
+
+❌ "Database is locked"  
+→ Only one scraper.py can run at a time
+→ Run: pkill -f scraper.py
+
+❌ "No internet connection"
+→ Check your network
+→ Some sites may require VPN
+
+❌ "robots.txt blocking"
+→ Normal! Skip those sites
+→ Edit config.py to adjust USER_AGENT
+
+
+================================================================================
+                           CUSTOMIZATION
+================================================================================
+
+Edit config.py to change:
+
+• Scraping intervals (default: 1h, 6h, 24h)
+• Keywords to search for
+• Sources (add/remove/enable/disable)
+• Rate limits
+
+Example:
+    TENDER_INTERVAL = 2  # Check tenders every 2 hours
+    NEWS_INTERVAL = 12   # Check news twice per day
+
+
+================================================================================
+                          FILES OVERVIEW
+================================================================================
+
+scraper.py          ← START HERE (main scheduler)
+monitor.py          ← View dashboard
+config.py           ← Configuration
+requirements.txt    ← Python dependencies
+README.md          ← Full documentation
+
+scrapers/
+├── tender_scraper.py
+├── news_scraper.py
+└── directory_scraper.py
+
+utils/
+├── database.py
+└── compliance.py
+
+hp_pulse.db        ← Created on first run
+
+
+================================================================================
+                      NEED HELP?
+================================================================================
+
+1. Read README.md for detailed docs
+2. Check scraper.log for error messages
+3. Review config.py settings
+
+
+================================================================================
+                    🚀 READY? RUN: python scraper.py
+================================================================================
