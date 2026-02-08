@@ -1,0 +1,189 @@
+{
+  "metadata": {
+    "export_timestamp": "2026-02-08T11:58:00+05:30",
+    "source": "HP-Pulse Scraper - Real Data",
+    "version": "1.0",
+    "purpose": "Logic Layer Integration"
+  },
+  "summary": {
+    "total_leads": 13,
+    "by_type": {
+      "tender": 13
+    },
+    "companies": [
+      "Government Procurement Authority"
+    ],
+    "unique_companies": 1
+  },
+  "leads_data": [
+    {
+      "id": 1,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "CPP Portal - RSS Feed",
+      "url": "https://eprocure.gov.in/eprocure/app?page=FrontEndRss",
+      "confidence": 0.85,
+      "timestamp": "2026-02-08T11:52:57.761248",
+      "tender": {
+        "title": "Tenders by Closing Date"
+      }
+    },
+    {
+      "id": 2,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "CPP Portal - RSS Feed",
+      "url": "https://eprocure.gov.in/eprocure/app?page=FrontEndRss",
+      "confidence": 0.85,
+      "timestamp": "2026-02-08T11:52:57.762289",
+      "tender": {
+        "title": "Tenders by Organisation"
+      }
+    },
+    {
+      "id": 3,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "CPP Portal - RSS Feed",
+      "url": "https://eprocure.gov.in/eprocure/app?page=FrontEndRss",
+      "confidence": 0.85,
+      "timestamp": "2026-02-08T11:52:57.763216",
+      "tender": {
+        "title": "Tenders by Classification"
+      }
+    },
+    {
+      "id": 4,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "CPP Portal - RSS Feed",
+      "url": "https://eprocure.gov.in/eprocure/app?page=FrontEndRss",
+      "confidence": 0.85,
+      "timestamp": "2026-02-08T11:52:57.764705",
+      "tender": {
+        "title": "Guidelines for Hassle Free Bid Submission"
+      }
+    },
+    {
+      "id": 5,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "CPP Portal - Fuel Tenders",
+      "url": "https://eprocure.gov.in/eprocure/app",
+      "confidence": 0.85,
+      "timestamp": "2026-02-08T11:52:58.760206",
+      "tender": {
+        "title": "Tenders by Closing Date"
+      }
+    },
+    {
+      "id": 6,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "CPP Portal - Fuel Tenders",
+      "url": "https://eprocure.gov.in/eprocure/app",
+      "confidence": 0.85,
+      "timestamp": "2026-02-08T11:52:58.761321",
+      "tender": {
+        "title": "Tenders by Organisation"
+      }
+    },
+    {
+      "id": 7,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "CPP Portal - Fuel Tenders",
+      "url": "https://eprocure.gov.in/eprocure/app",
+      "confidence": 0.85,
+      "timestamp": "2026-02-08T11:52:58.762486",
+      "tender": {
+        "title": "Tenders by Classification"
+      }
+    },
+    {
+      "id": 8,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "CPP Portal - Fuel Tenders",
+      "url": "https://eprocure.gov.in/eprocure/app",
+      "confidence": 0.85,
+      "timestamp": "2026-02-08T11:52:58.763639",
+      "tender": {
+        "title": "Guidelines for Hassle Free Bid Submission"
+      }
+    },
+    {
+      "id": 9,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "GEM Portal",
+      "url": "https://gem.gov.in/",
+      "confidence": 0.8,
+      "timestamp": "2026-02-08T11:52:59.320243",
+      "tender": {
+        "title": "10,670Product Categories1,739,967Order Value (Cr.)353Service CategoriesRich Listing of Products / ServicesIntegrated Payment SystemMultiple Procurement Modes - Direct Purchase / Bid / RAGreat Transparency and Speed of ProcurementOnline Ordering and Contract Generation"
+      }
+    },
+    {
+      "id": 10,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "CPP Portal - Deep Scrape",
+      "url": "https://eprocure.gov.in/eprocure/app",
+      "confidence": 0.85,
+      "timestamp": "2026-02-08T11:52:59.916016",
+      "tender": {
+        "title": "Tenders by Closing Date"
+      }
+    },
+    {
+      "id": 11,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "CPP Portal - Deep Scrape",
+      "url": "https://eprocure.gov.in/eprocure/app",
+      "confidence": 0.85,
+      "timestamp": "2026-02-08T11:52:59.917141",
+      "tender": {
+        "title": "Tenders by Organisation"
+      }
+    },
+    {
+      "id": 12,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "CPP Portal - Deep Scrape",
+      "url": "https://eprocure.gov.in/eprocure/app",
+      "confidence": 0.85,
+      "timestamp": "2026-02-08T11:52:59.917857",
+      "tender": {
+        "title": "Tenders by Classification"
+      }
+    },
+    {
+      "id": 13,
+      "type": "tender",
+      "company": "Government Procurement Authority",
+      "industry": "General Business",
+      "source": "CPP Portal - Deep Scrape",
+      "url": "https://eprocure.gov.in/eprocure/app",
+      "confidence": 0.85,
+      "timestamp": "2026-02-08T11:52:59.918558",
+      "tender": {
+        "title": "Guidelines for Hassle Free Bid Submission"
+      }
+    }
+  ]
+}

@@ -25,6 +25,7 @@ from utils.compliance import ComplianceChecker
 from scrapers.tender_scraper import TenderScraper
 from scrapers.news_scraper import NewsScraper
 from scrapers.directory_scraper import DirectoryScraper
+from scrapers.selenium_scraper import SeleniumScraper
 
 class HPPulseScraper:
     def __init__(self):
@@ -45,6 +46,11 @@ class HPPulseScraper:
         self.tender_scraper = TenderScraper(self.db, self.checker)
         self.news_scraper = NewsScraper(self.db, self.checker)
         self.directory_scraper = DirectoryScraper(self.db, self.checker)
+        self.selenium_scraper = SeleniumScraper(self.db, self.checker)
+        print("✅ Tender scraper initialized")
+        print("✅ News scraper initialized")
+        print("✅ Directory scraper initialized")
+        print("✅ Selenium scraper initialized")
         
         print("\n✅ Initialization complete!")
         print("=" * 70)
@@ -54,8 +60,29 @@ class HPPulseScraper:
         try:
             sources = SOURCES['tenders']['sources']
             self.tender_scraper.scrape_all(sources)
+            
+            # Run Selenium deep scraping
+            self.scrape_tenders_selenium()
         except Exception as e:
             print(f"❌ Error in tender scraping: {e}")
+    
+    def scrape_tenders_selenium(self):
+        """Job: Deep scrape tenders with Selenium"""
+        try:
+            # Find sources with selenium enabled
+            selenium_sources = [
+                s for s in SOURCES['tenders']['sources']
+                if s.get('selenium', False) and s.get('enabled', True)
+            ]
+            
+            if selenium_sources:
+                for source in selenium_sources:
+                    self.selenium_scraper.scrape_cpp_portal_tenders(source)
+                
+                # Close driver after all selenium scraping
+                self.selenium_scraper.close_driver()
+        except Exception as e:
+            print(f"❌ Error in Selenium scraping: {e}")
     
     def scrape_news(self):
         """Job: Scrape news sources"""

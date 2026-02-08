@@ -4,10 +4,9 @@ Scrapes government tender portals
 """
 
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+from datetime import datetime
 import re
 from config import TENDER_KEYWORDS
-import random
 
 class TenderScraper:
     def __init__(self, db, compliance_checker):
@@ -23,96 +22,85 @@ class TenderScraper:
     def scrape_cpp_portal(self, source):
         """
         Scrape CPP Portal
-        Note: CPP Portal requires JavaScript and authentication
-        This uses sample/mock data for demo purposes
-        For production, use Selenium + authentication or official API if available
+        Attempts to scrape public tender listings
         """
         print(f"\n🏛️  Scraping: {source['name']}")
         print(f"   URL: {source['url']}")
-        print("   ⚠️  Note: CPP Portal requires authentication")
-        print("   Using representative sample data for demonstration")
-        
-        # Sample tender data representing typical fuel/chemical tenders
-        sample_tenders = [
-            {
-                'title': 'Supply of High Speed Diesel (HSD) for Power Generation Units',
-                'organization': 'Maharashtra State Electricity Distribution Company Limited',
-                'value': '₹50,00,000',
-                'deadline': (datetime.now() + timedelta(days=15)).strftime('%Y-%m-%d'),
-                'location': 'Mumbai, Maharashtra'
-            },
-            {
-                'title': 'Procurement of Bitumen Grade 80/100 for Road Construction',
-                'organization': 'National Highways Authority of India (NHAI)',
-                'value': '₹2,50,00,000',
-                'deadline': (datetime.now() + timedelta(days=8)).strftime('%Y-%m-%d'),
-                'location': 'Rajasthan'
-            },
-            {
-                'title': 'Supply of Furnace Oil (FO) for Industrial Boilers',
-                'organization': 'Gujarat Industries Power Company Limited',
-                'value': '₹1,20,00,000',
-                'deadline': (datetime.now() + timedelta(days=20)).strftime('%Y-%m-%d'),
-                'location': 'Vadodara, Gujarat'
-            },
-            {
-                'title': 'Light Diesel Oil (LDO) Supply Contract - Annual',
-                'organization': 'Indian Railways - Central Railway Zone',
-                'value': '₹3,00,00,000',
-                'deadline': (datetime.now() + timedelta(days=12)).strftime('%Y-%m-%d'),
-                'location': 'Multiple Locations'
-            },
-            {
-                'title': 'Marine Bunker Fuel Supply for Shipping Fleet',
-                'organization': 'Shipping Corporation of India',
-                'value': '₹5,00,00,000',
-                'deadline': (datetime.now() + timedelta(days=18)).strftime('%Y-%m-%d'),
-                'location': 'Mumbai, Visakhapatnam'
-            }
-        ]
-        
-        # Randomly select 2-4 tenders to simulate scraping
-        selected_tenders = random.sample(sample_tenders, k=random.randint(2, 4))
         
         items_found = 0
-        for tender in selected_tenders:
-            if self.is_relevant(tender['title']):
-                # Insert company/organization
-                company_id = self.db.insert_company(
-                    name=tender['organization'],
-                    industry='Government/PSU',
-                    location=tender['location']
-                )
-                
-                # Create signal text
-                signal_text = f"""{tender['title']}
-
-Organization: {tender['organization']}
-Tender Value: {tender['value']}
-Submission Deadline: {tender['deadline']}
-Location: {tender['location']}
-"""
-                
-                # Insert lead with high confidence (tenders are explicit)
-                self.db.insert_lead(
-                    company_id=company_id,
-                    signal_text=signal_text,
-                    signal_type='tender',
-                    source_name=source['name'],
-                    source_url=source['url'],
-                    confidence=0.95
-                )
-                
-                items_found += 1
-                print(f"   ✅ Found: {tender['title'][:70]}...")
-                print(f"      Value: {tender['value']} | Deadline: {tender['deadline']}")
         
-        self.db.log_scrape(
-            source_name=source['name'],
-            source_type='tender',
-            status='success',
-            items_found=items_found
-        )
+        try:
+            # Try to access public tender search page
+            search_url = "https://eprocure.gov.in/eprocure/app"
+            
+            response = self.checker.make_request(search_url)
+            if not response:
+                self.db.log_scrape(
+                    source_name=source['name'],
+                    source_type='tender',
+                    status='error',
+                    items_found=0,
+                    error='Could not access portal'
+                )
+                print("   ⚠️  Could not access CPP Portal (may require authentication)")
+                return 0
+            
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Look for tender listings (common HTML patterns)
+            tenders = soup.find_all(['div', 'tr'], class_=re.compile(r'tender|bid|rfp', re.I))
+            
+            if not tenders:
+                # Try alternative selectors
+                tenders = soup.find_all('a', href=re.compile(r'tender|bid|procurement', re.I))
+            
+            print(f"   Found {len(tenders)} potential tender elements")
+            
+            for tender_elem in tenders[:20]:  # Limit to 20
+                # Extract text
+                text = tender_elem.get_text(strip=True)
+                
+                # Check if relevant
+                if self.is_relevant(text) and len(text) > 20:
+                    # Try to extract company/org name
+                    company_match = re.search(r'([A-Z][a-zA-Z\s&]+(?:Ltd|Limited|Corporation|Ministry|Department))', text)
+                    company_name = company_match.group(1) if company_match else "Government Organization"
+                    
+                    # Insert company
+                    company_id = self.db.insert_company(
+                        name=company_name,
+                        industry='Government/PSU'
+                    )
+                    
+                    # Insert lead
+                    self.db.insert_lead(
+                        company_id=company_id,
+                        signal_text=text[:500],  # Limit text length
+                        signal_type='tender',
+                        source_name=source['name'],
+                        source_url=source['url'],
+                        confidence=0.85
+                    )
+                    
+                    items_found += 1
+                    print(f"   ✅ Found: {text[:70]}...")
+            
+            self.db.log_scrape(
+                source_name=source['name'],
+                source_type='tender',
+                status='success',
+                items_found=items_found
+            )
+            
+        except Exception as e:
+            print(f"   ❌ Error: {e}")
+            self.db.log_scrape(
+                source_name=source['name'],
+                source_type='tender',
+                status='error',
+                items_found=0,
+                error=str(e)
+            )
         
         print(f"   📊 Total tenders found: {items_found}")
         return items_found
@@ -120,63 +108,78 @@ Location: {tender['location']}
     def scrape_gem_portal(self, source):
         """
         Scrape GEM Portal
-        Similar to CPP, GEM requires authentication
-        Using sample data for demo
+        Attempts to scrape public procurement listings
         """
         print(f"\n🏛️  Scraping: {source['name']}")
         print(f"   URL: {source['url']}")
-        print("   ⚠️  Note: GEM Portal requires authentication")
-        print("   Using representative sample data for demonstration")
-        
-        sample_orders = [
-            {
-                'title': 'Hexane (Technical Grade) for Solvent Extraction',
-                'buyer': 'Food Corporation of India',
-                'value': '₹35,00,000',
-                'location': 'Multiple Locations'
-            },
-            {
-                'title': 'Industrial Lubricants - Various Grades',
-                'buyer': 'Defence Research and Development Organisation',
-                'value': '₹45,00,000',
-                'location': 'Delhi, Bangalore'
-            }
-        ]
         
         items_found = 0
-        for order in sample_orders:
-            if self.is_relevant(order['title']):
-                company_id = self.db.insert_company(
-                    name=order['buyer'],
-                    industry='Government',
-                    location=order['location']
-                )
-                
-                signal_text = f"""{order['title']}
-
-Buyer: {order['buyer']}
-Order Value: {order['value']}
-Location: {order['location']}
-"""
-                
-                self.db.insert_lead(
-                    company_id=company_id,
-                    signal_text=signal_text,
-                    signal_type='tender',
-                    source_name=source['name'],
-                    source_url=source['url'],
-                    confidence=0.90
-                )
-                
-                items_found += 1
-                print(f"   ✅ Found: {order['title'][:70]}...")
         
-        self.db.log_scrape(
-            source_name=source['name'],
-            source_type='tender',
-            status='success',
-            items_found=items_found
-        )
+        try:
+            # Try to access GEM public pages
+            response = self.checker.make_request(source['url'])
+            if not response:
+                self.db.log_scrape(
+                    source_name=source['name'],
+                    source_type='tender',
+                    status='error',
+                    items_found=0,
+                    error='Could not access portal'
+                )
+                print("   ⚠️  Could not access GEM Portal (may require authentication)")
+                return 0
+            
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Look for procurement/order listings
+            orders = soup.find_all(['div', 'tr', 'li'], class_=re.compile(r'order|procurement|bid|contract', re.I))
+            
+            if not orders:
+                orders = soup.find_all('a', href=re.compile(r'product|bid|order', re.I))
+            
+            print(f"   Found {len(orders)} potential order elements")
+            
+            for order_elem in orders[:20]:  # Limit to 20
+                text = order_elem.get_text(strip=True)
+                
+                if self.is_relevant(text) and len(text) > 20:
+                    # Extract buyer organization
+                    buyer_match = re.search(r'([A-Z][a-zA-Z\s&]+(?:Ltd|Limited|Corporation|Ministry|Organisation))', text)
+                    buyer_name = buyer_match.group(1) if buyer_match else "Government Buyer"
+                    
+                    company_id = self.db.insert_company(
+                        name=buyer_name,
+                        industry='Government'
+                    )
+                    
+                    self.db.insert_lead(
+                        company_id=company_id,
+                        signal_text=text[:500],
+                        signal_type='tender',
+                        source_name=source['name'],
+                        source_url=source['url'],
+                        confidence=0.80
+                    )
+                    
+                    items_found += 1
+                    print(f"   ✅ Found: {text[:70]}...")
+            
+            self.db.log_scrape(
+                source_name=source['name'],
+                source_type='tender',
+                status='success',
+                items_found=items_found
+            )
+            
+        except Exception as e:
+            print(f"   ❌ Error: {e}")
+            self.db.log_scrape(
+                source_name=source['name'],
+                source_type='tender',
+                status='error',
+                items_found=0,
+                error=str(e)
+            )
         
         print(f"   📊 Total orders found: {items_found}")
         return items_found
